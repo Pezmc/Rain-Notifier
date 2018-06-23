@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "dark-sky": "^1.1.4",
+    "dotenv": "^6.0.0",
     "pushover-notifications": "^1.0.0"
   }
 }
