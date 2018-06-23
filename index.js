@@ -9,14 +9,8 @@ const pushover = new Pushover({
   token: process.env.PUSHOVER_TOKEN,
 })
 
-function summarizeWeatherResponse(response) {
-  const days = response.daily.data
-
-  const days3 = summarise(days.slice(0, 3))
-  const days5 = summarise(days.slice(0, 5))
-  const days7 = summarise(days.slice(0, 7))
-
-  return [days3, days5, days7]
+function getWeatherResponse(response) {
+  return response.daily.data;
 }
 
 function summarise(days) {
@@ -31,30 +25,30 @@ function summarise(days) {
 }
 
 const THRESHOLD = 0.05
-function sendPushNotification(weatherSummary) {
-  const [days3, days5, days7] = weatherSummary
-
+function sendPushNotification(weatherDays) {
   let daysWithoutRain;
-  if (days7.precipProbabilityMax <= THRESHOLD) {
-    daysWithoutRain = days7
-  } else if (days5.precipProbabilityMax <= THRESHOLD) {
-    daysWithoutRain = days5
-  } else if (days3.precipProbabilityMax <= THRESHOLD) {
-    daysWithoutRain = days3
+  for (daysWithoutRain = 0; daysWithoutRain < weatherDays.length; daysWithoutRain++) {
+    const day = weatherDays[daysWithoutRain];
+    if (day.precipProbability > THRESHOLD) {
+      break;
+    }
   }
 
-  if (!daysWithoutRain) {
-    return console.info("Less than three days without rain");
+  if (daysWithoutRain < 3) {
+    return console.info(`Less than three days without rain (${daysWithoutRain})`);
   }
 
-  const days = daysWithoutRain;
-  const message = `${days.precipIntensityMax.toFixed(1)}mm with an avg high of ${days.apparentTemperatureHighAvg.toFixed(0)}°C and low of ${days.apparentTemperatureLowAvg.toFixed(0)}°C.`
+  const rainFreeDays = weatherDays.slice(0, daysWithoutRain);
+  const weatherSummary = summarise(rainFreeDays);
+  const message = `${weatherSummary.precipIntensityMax.toFixed(1)}mm`
+    + ` with an avg high of ${weatherSummary.apparentTemperatureHighAvg.toFixed(0)}°C`
+    + ` and low of ${weatherSummary.apparentTemperatureLowAvg.toFixed(0)}°C.`
 
   const msg = {
     message,
-    title: `No Rain Forecast for Next ${days.length} days`,
+    title: `No Rain Forecast for Next ${daysWithoutRain} days`,
     sound: 'falling',
-    priority: 0
+    priority: 0,
   }
 
   console.log("Sending", msg);
@@ -76,6 +70,6 @@ darksky
     .exclude('currently,minutely,hourly,alerts,flags')
     .extendHourly(false)
     .get()
-    .then(summarizeWeatherResponse)
+    .then(getWeatherResponse)
     .then(sendPushNotification)
     .catch(console.error)
