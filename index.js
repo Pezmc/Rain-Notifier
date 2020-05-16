@@ -24,7 +24,7 @@ function summarise(days) {
   }
 }
 
-const THRESHOLD = 0.05
+const THRESHOLD = 0.5
 function sendPushNotification(weatherDays) {
   let daysWithoutRain;
   for (daysWithoutRain = 0; daysWithoutRain < weatherDays.length; daysWithoutRain++) {
