@@ -1,16 +1,16 @@
-require("dotenv").config();
+require('dotenv').config()
 
-const DarkSky = require("dark-sky");
-const darksky = new DarkSky(process.env.DARK_SKY_KEY);
+const DarkSky = require('dark-sky')
+const darksky = new DarkSky(process.env.DARK_SKY_KEY)
 
-const Pushover = require("pushover-notifications");
+const Pushover = require('pushover-notifications')
 const pushover = new Pushover({
   user: process.env.PUSHOVER_USER,
   token: process.env.PUSHOVER_TOKEN,
-});
+})
 
 function getWeatherResponse(response) {
-  return response.daily.data;
+  return response.daily.data
 }
 
 function summarise(days) {
@@ -38,64 +38,64 @@ function summarise(days) {
         (currentTotal, day) => currentTotal + day.apparentTemperatureHigh,
         0
       ) / days.length,
-  };
+  }
 }
 
-const THRESHOLD = 0.5;
+const THRESHOLD = 0.5
 function sendPushNotification(weatherDays) {
-  let daysWithoutRain;
+  let daysWithoutRain
   for (
     daysWithoutRain = 0;
     daysWithoutRain < weatherDays.length;
     daysWithoutRain++
   ) {
-    const day = weatherDays[daysWithoutRain];
+    const day = weatherDays[daysWithoutRain]
     if (day.precipProbability > THRESHOLD) {
-      break;
+      break
     }
   }
 
   if (daysWithoutRain < 3) {
     return console.info(
       `Less than three days without rain (${daysWithoutRain})`
-    );
+    )
   }
 
-  const rainFreeDays = weatherDays.slice(0, daysWithoutRain);
-  const weatherSummary = summarise(rainFreeDays);
+  const rainFreeDays = weatherDays.slice(0, daysWithoutRain)
+  const weatherSummary = summarise(rainFreeDays)
   const message =
     `${weatherSummary.precipIntensityMax.toFixed(1)}mm` +
     ` with an avg high of ${weatherSummary.apparentTemperatureHighAvg.toFixed(
       0
     )}°C` +
-    ` and low of ${weatherSummary.apparentTemperatureLowAvg.toFixed(0)}°C.`;
+    ` and low of ${weatherSummary.apparentTemperatureLowAvg.toFixed(0)}°C.`
 
   const msg = {
     message,
     title: `No Rain Forecast for Next ${daysWithoutRain} days`,
-    sound: "falling",
+    sound: 'falling',
     priority: 0,
-  };
+  }
 
-  console.log("Sending", msg);
+  console.log('Sending', msg)
 
   return pushover.send(msg, function (err, result) {
     if (err) {
-      throw err;
+      throw err
     }
 
-    console.log(result);
-  });
+    console.log(result)
+  })
 }
 
 darksky
   .latitude(process.env.LAT)
   .longitude(process.env.LON)
-  .units("si")
-  .language("en")
-  .exclude("currently,minutely,hourly,alerts,flags")
+  .units('si')
+  .language('en')
+  .exclude('currently,minutely,hourly,alerts,flags')
   .extendHourly(false)
   .get()
   .then(getWeatherResponse)
   .then(sendPushNotification)
-  .catch(console.error);
+  .catch(console.error)
