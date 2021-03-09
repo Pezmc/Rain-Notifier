@@ -8,11 +8,11 @@ I use this to decide whether or not to turn on the manual sprinker at home, sinc
 
 Create a `.env` file following the example and fill in the config.
 
- - `DARK_SKY_KEY` comes from https://darksky.net/dev/register
- - `LAT` and `LON` are the coordinates of where you would like to receive weather from
- - `PUSHOVER_USER` is your USER token for pushover, found in your app
- - `PUSHOVER_TOKEN` is the app token from https://pushover.net/apps/build
- 
+- `DARK_SKY_KEY` comes from https://darksky.net/dev/register
+- `LAT` and `LON` are the coordinates of where you would like to receive weather from
+- `PUSHOVER_USER` is your USER token for pushover, found in your app
+- `PUSHOVER_TOKEN` is the app token from https://pushover.net/apps/build
+
 Simply run `npm start` to run the script, it closes immediately after grabbing the weather and sending a notification
 
 # Run on Heroku
