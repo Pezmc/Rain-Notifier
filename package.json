@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dark-sky": "^1.1.4",
-    "dotenv": "^6.0.0",
-    "pushover-notifications": "^1.0.0"
+    "dark-sky": "^1.1.5",
+    "dotenv": "^6.2.0",
+    "pushover-notifications": "^1.2.2"
   }
 }
